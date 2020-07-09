@@ -20,6 +20,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+##
+import csv
+##
 
 import os
 import time
@@ -208,6 +211,13 @@ def run_train(config, create_dataset_and_model_fn=create_dataset_and_model):
     else:
       return ll_per_seq, -ll_per_seq
 
+## WRITTEN BY U.G. ##
+  def write_to_csv(iteration, loss):
+    with open('train_results.csv', 'a+', newline='') as file:
+      writer = csv.writer(file)
+      writer.writerow([iteration, loss])
+##	  /\	   ##
+
   def create_graph():
     """Creates the training graph."""
     global_step = tf.train.get_or_create_global_step()
@@ -215,6 +225,9 @@ def run_train(config, create_dataset_and_model_fn=create_dataset_and_model):
     opt = tf.train.AdamOptimizer(config.learning_rate)
     grads = opt.compute_gradients(loss, var_list=tf.trainable_variables())
     train_op = opt.apply_gradients(grads, global_step=global_step)
+    ##
+    write_to_csv(global_step, loss)
+    ##
     return bound, train_op, global_step
 
   device = tf.train.replica_device_setter(ps_tasks=config.ps_tasks)
