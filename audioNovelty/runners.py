@@ -213,7 +213,7 @@ def run_train(config, create_dataset_and_model_fn=create_dataset_and_model):
 
 ## WRITTEN BY U.G. ##
   def write_to_csv(iteration, loss):
-    with open('train_results.csv', 'a+', newline='') as file:
+    with open('train_results.csv', 'wb') as file:
       writer = csv.writer(file)
       writer.writerow([iteration, loss])
 ##	  /\	   ##
