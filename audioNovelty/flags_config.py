@@ -36,7 +36,7 @@ tf.app.flags.DEFINE_integer("latent_size", 160,
 tf.app.flags.DEFINE_enum("dataset_type", "speech",
                          ["pianoroll", "speech", "pose"],
                          "The type of dataset.")
-tf.app.flags.DEFINE_string("dataset_path", "./datasets/train_3_160.tfrecord",
+tf.app.flags.DEFINE_string("dataset_path", "./AudioNovelty/datasets/train_3_160.tfrecord",
                            "Path to load the dataset from.")
 tf.app.flags.DEFINE_integer("data_dimension", 160,
                             "The dimension of each vector in the data sequence. "
@@ -48,7 +48,7 @@ tf.app.flags.DEFINE_integer("batch_size", 4,
 tf.app.flags.DEFINE_integer("num_samples", 1,
                             "The number of samples (or particles) for multisample "
                             "algorithms.")
-tf.app.flags.DEFINE_string("log_dir", "./chkpts",
+tf.app.flags.DEFINE_string("log_dir", "./AudioNovelty/chkpts",
                            "The directory to keep checkpoints and summaries in.")
 tf.app.flags.DEFINE_integer("random_seed", None,
                             "A random seed for seeding the TensorFlow graph.")
@@ -65,7 +65,7 @@ tf.app.flags.DEFINE_boolean("normalize_by_seq_len", True,
                             "per sequence.")
 tf.app.flags.DEFINE_float("learning_rate", 3e-5,
                           "The learning rate for ADAM.")
-tf.app.flags.DEFINE_integer("max_steps", int(1e1),
+tf.app.flags.DEFINE_integer("max_steps", int(1e9),
                             "The number of gradient update steps to train for.")
 tf.app.flags.DEFINE_integer("summarize_every", 100,
                             "The number of steps between summaries.")

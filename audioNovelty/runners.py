@@ -211,13 +211,6 @@ def run_train(config, create_dataset_and_model_fn=create_dataset_and_model):
     else:
       return ll_per_seq, -ll_per_seq
 
-## WRITTEN BY U.G. ##
-  def write_to_csv(iteration, loss):
-    with open('train_results.csv', 'wb') as file:
-      writer = csv.writer(file)
-      writer.writerow([iteration, loss])
-##	  /\	   ##
-
   def create_graph():
     """Creates the training graph."""
     global_step = tf.train.get_or_create_global_step()
@@ -225,37 +218,41 @@ def run_train(config, create_dataset_and_model_fn=create_dataset_and_model):
     opt = tf.train.AdamOptimizer(config.learning_rate)
     grads = opt.compute_gradients(loss, var_list=tf.trainable_variables())
     train_op = opt.apply_gradients(grads, global_step=global_step)
-    ##
-    write_to_csv(global_step, loss)
-    ##
-    return bound, train_op, global_step
+    return bound, train_op, global_step, loss
 
   device = tf.train.replica_device_setter(ps_tasks=config.ps_tasks)
-  with tf.Graph().as_default():
-    if config.random_seed: tf.set_random_seed(config.random_seed)
-    with tf.device(device):
-      bound, train_op, global_step = create_graph()
-      log_hook = create_logging_hook(global_step, bound)
-      start_training = not config.stagger_workers
-      with tf.train.MonitoredTrainingSession(
-          master=config.master,
-          is_chief=config.task == 0,
-          hooks=[log_hook],
-          checkpoint_dir=config.logdir,
-          save_checkpoint_secs=120,
-          save_summaries_steps=config.summarize_every,
-          log_step_count_steps=config.summarize_every) as sess:
-        cur_step = -1
-        while not sess.should_stop() and cur_step <= config.max_steps:
-          if config.task > 0 and not start_training:
-            cur_step = sess.run(global_step)
-            tf.logging.info("task %d not active yet, sleeping at step %d" %
-                            (config.task, cur_step))
-            time.sleep(30)
-            if cur_step >= config.task * 1000:
-              start_training = True
-          else:
-            _, cur_step = sess.run([train_op, global_step])
+  cntr = 0
+  with open('train_results.csv', 'wb') as file:
+    writer = csv.writer(file)
+    writer.writerow(["iteration", "loss"])
+    with tf.Graph().as_default():
+      if config.random_seed: tf.set_random_seed(config.random_seed)
+      with tf.device(device):
+        bound, train_op, global_step, loss = create_graph()
+        log_hook = create_logging_hook(global_step, bound)
+        start_training = not config.stagger_workers
+        with tf.train.MonitoredTrainingSession(
+            master=config.master,
+            is_chief=config.task == 0,
+            hooks=[log_hook],
+            checkpoint_dir=config.logdir,
+            save_checkpoint_secs=120,
+            save_summaries_steps=config.summarize_every,
+            log_step_count_steps=config.summarize_every) as sess:
+          cur_step = -1
+          while not sess.should_stop() and cur_step <= config.max_steps:
+            if config.task > 0 and not start_training:
+              cur_step = sess.run(global_step)
+              tf.logging.info("task %d not active yet, sleeping at step %d" %
+                              (config.task, cur_step))
+              time.sleep(30)
+              if cur_step >= config.task * 1000:
+                start_training = True
+            else:
+              tmp = sess.run([bound, train_op, global_step, loss])
+              print(tmp)
+              writer.writerow([cntr, tmp[3]])
+              cntr += 1;
 
 
 def run_eval(config, create_dataset_and_model_fn=create_dataset_and_model):
