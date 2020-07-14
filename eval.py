@@ -56,8 +56,8 @@ config.logdir = config.logdir.replace("_30_","_3_")
 
 #config.dataset_path = "./datasets/test_{0}_160.tfrecord".format(DURATION)
 
-m_label = np.load("./datasets/labels.npy")
-savefile_dir = "./results/"+config.logdir.split("/")[-1]
+m_label = np.load("./AudioNovelty/datasets/labels.npy")
+savefile_dir = "./AudioNovelty/results/"+config.logdir.split("/")[-1]
 if not os.path.exists(savefile_dir):
     os.mkdir(savefile_dir)
 savefilename = os.path.join(savefile_dir,config.dataset_path.split("/")[-1]+"_result.pkl")
