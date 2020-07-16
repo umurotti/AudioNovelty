@@ -48,7 +48,7 @@ tf.app.flags.DEFINE_integer("batch_size", 4,
 tf.app.flags.DEFINE_integer("num_samples", 1,
                             "The number of samples (or particles) for multisample "
                             "algorithms.")
-tf.app.flags.DEFINE_string("log_dir", "./AudioNovelty/chkpts",
+tf.app.flags.DEFINE_string("log_dir", "/home/pi/AudioNovelty/chkpts",
                            "The directory to keep checkpoints and summaries in.")
 tf.app.flags.DEFINE_integer("random_seed", None,
                             "A random seed for seeding the TensorFlow graph.")

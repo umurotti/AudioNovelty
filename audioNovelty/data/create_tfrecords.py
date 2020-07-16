@@ -27,15 +27,17 @@ import os
 import random
 
 import numpy as np
-import librosa
 import tensorflow as tf
+import librosa
 from tqdm import tqdm
 
 tf.app.flags.DEFINE_string("raw_wav_dir", "./datasets/",
                           "Directory containing TIMIT files.")
 tf.app.flags.DEFINE_string("out_dir", "./datasets/",
                           "Output directory for TFRecord files.")
-tf.app.flags.DEFINE_integer("duration", 3,
+tf.app.flags.DEFINE_integer("duration_train", 3,
+                            "Duration of the series (in second).")
+tf.app.flags.DEFINE_integer("duration_test", 30,
                             "Duration of the series (in second).")
 tf.app.flags.DEFINE_float("valid_frac", 0.1,
                           "Fraction of train set to use as valid set. "
@@ -46,7 +48,8 @@ config = FLAGS
 
 SAMPLING_RATE = 16000
 SAMPLES_PER_TIMESTEP = 160
-DURATION = FLAGS.duration
+DURATION_TEST = FLAGS.duration_test
+DURATION_TRAIN = FLAGS.duration_train
 
 def get_filenames():
     """Get all wav filenames from the TIMIT archive."""
@@ -56,7 +59,7 @@ def get_filenames():
     files_test.sort(key=lambda f: int(filter(str.isdigit, f)))
     return files_train, files_test
 
-def load_wav(filename,mono):
+def load_wav(filename,mono, duration):
     data, wav_rate = librosa.load(filename,
                               sr=SAMPLING_RATE,
                               mono=mono)
@@ -65,9 +68,9 @@ def load_wav(filename,mono):
         data = np.mean(data,axis=0)
     # split
     l_wavs = []
-    for d_i in range(0,int(len(data)/SAMPLING_RATE),DURATION):
+    for d_i in range(0,int(len(data)/SAMPLING_RATE),duration):
         try:
-            l_wavs.append(data[d_i*SAMPLING_RATE:(d_i+DURATION)*SAMPLING_RATE])
+            l_wavs.append(data[d_i*SAMPLING_RATE:(d_i+duration)*SAMPLING_RATE])
         except:
             continue
     return l_wavs, wav_rate
@@ -101,12 +104,12 @@ def main(unused_argv):
     l_wav_train = []
     l_wav_test = []
     for f in tqdm(l_filename_train):
-        l_wav_train_tmp, wav_rate = load_wav(f, mono=True)
+        l_wav_train_tmp, wav_rate = load_wav(f, mono=True, duration=DURATION_TRAIN)
         l_wav_train += l_wav_train_tmp
         
     print("Loading test *.wav files...")
     for f in tqdm(l_filename_test):
-        l_wav_test_tmp, wav_rate = load_wav(f, mono=True)
+        l_wav_test_tmp, wav_rate = load_wav(f, mono=True, duration=DURATION_TEST)
         l_wav_test += l_wav_test_tmp
         
     random.seed(1234)
@@ -136,11 +139,11 @@ def main(unused_argv):
     # Write the datasets to disk.
     print("Writing to disk...")
     create_tfrecord_from_wavs(processed_wav_train,
-                              os.path.join(FLAGS.out_dir, "train_{0}_{1}.tfrecord".format(DURATION,SAMPLES_PER_TIMESTEP)))
+                              os.path.join(FLAGS.out_dir, "train_{0}_{1}.tfrecord".format(DURATION_TRAIN,SAMPLES_PER_TIMESTEP)))
     create_tfrecord_from_wavs(processed_wav_valid,
-                              os.path.join(FLAGS.out_dir, "valid_{0}_{1}.tfrecord".format(DURATION,SAMPLES_PER_TIMESTEP)))
+                              os.path.join(FLAGS.out_dir, "valid_{0}_{1}.tfrecord".format(DURATION_TRAIN,SAMPLES_PER_TIMESTEP)))
     create_tfrecord_from_wavs(processed_wav_test,
-                              os.path.join(FLAGS.out_dir, "test_{0}_{1}.tfrecord".format(DURATION,SAMPLES_PER_TIMESTEP)))
+                              os.path.join(FLAGS.out_dir, "test_{0}_{1}.tfrecord".format(DURATION_TEST,SAMPLES_PER_TIMESTEP)))
 
 
 if __name__ == "__main__":

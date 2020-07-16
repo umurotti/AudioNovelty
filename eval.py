@@ -56,8 +56,8 @@ config.logdir = config.logdir.replace("_30_","_3_")
 
 #config.dataset_path = "./datasets/test_{0}_160.tfrecord".format(DURATION)
 
-m_label = np.load("./AudioNovelty/datasets/labels.npy")
-savefile_dir = "./AudioNovelty/results/"+config.logdir.split("/")[-1]
+m_label = np.load("/home/pi/AudioNovelty/datasets/labels.npy")
+savefile_dir = "/home/pi/AudioNovelty/results/"+config.logdir.split("/")[-1]
 if not os.path.exists(savefile_dir):
     os.mkdir(savefile_dir)
 savefilename = os.path.join(savefile_dir,config.dataset_path.split("/")[-1]+"_result.pkl")
@@ -100,13 +100,14 @@ else:
     l_Result = []
     d_key = 0
     
-    while True:
-        print(d_key)
+    while d_key<-(m_label.shape[0]//(-1*config.batch_size)):
+        
         d_key+=1
         try:
             tar_np, ll_np, log_weights_np =\
                              sess.run([targets, ll_per_t, log_weights])
         except:
+            print("in except")
             break
         log_weights_np = np.squeeze(log_weights_np)
         log_alphas_np = log_weights_np+0 
@@ -115,8 +116,9 @@ else:
                 Tmp = dict()
                 Tmp["data"] = tar_np[:,inbatch_idx,:]
                 Tmp["ll"] = ll_np[inbatch_idx]
-                Tmp["log_alphas"] = log_alphas_np[:,inbatch_idx] 
+                Tmp["log_alphas"] = log_alphas_np[:,inbatch_idx]
                 l_Result.append(Tmp)
+        print(d_key)
     
     ## DUMP
     if config.dump_result:
