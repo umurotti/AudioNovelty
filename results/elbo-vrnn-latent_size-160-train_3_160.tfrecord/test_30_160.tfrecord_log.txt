@@ -1,0 +1,8 @@
+*************************************************
+2020-07-16 05:22:23
+THRESHOLD = {0}, USE_CONTRARIO = {1}, CONTRARIO_EPS = {2}, MAX_SEQUENCE_LEN = {3}, MIN_SEGMENT_LEN = 1, FILTER_SIZE = 41
+Precision: 0.978314, Recall: 0.944426, F1-score: 0.961072
+*************************************************
+2020-07-16 05:27:06
+THRESHOLD = {0}, USE_CONTRARIO = {1}, CONTRARIO_EPS = {2}, MAX_SEQUENCE_LEN = {3}, MIN_SEGMENT_LEN = 1, FILTER_SIZE = 41
+Precision: 0.979355, Recall: 0.924650, F1-score: 0.951217
